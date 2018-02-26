@@ -59,7 +59,7 @@ raster = arcpy.Raster(pathToRast)
 
 #set environmental varables based on raster
 arcpy.env.overwriteOutput = True
-arcpy.env.outputCoordinateSystem = raster
+arcpy.env.outputCoordinateSystem = arcpy.SpatialReference('WGS 1984')
 arcpy.env.cellSize = raster
 arcpy.env.snapRaster = raster
 
@@ -69,7 +69,13 @@ values = rastDesc(raster)
 #call the left and bottom values to define the lower left point
 # this is in meters due to landsats projection. You can find your point in arcmap and enter it
 # manually
-lowerLeft = arcpy.Point(347722, 5195823)
+lowerLeftAproximate = [347722, 5195823]
+
+#set the lowerleft so it aligns with a cell of a the raster
+adjustLeft = lowerLeftAproximate[0] - ((values['Left'] - lowerLeftAproximate[0]) % values['xSize'])
+adjustBottom =  lowerLeftAproximate[1] - ((values["Bottom"] - lowerLeftAproximate[1])% values['ySize'])
+
+
 
 ##uncommit this code if you want to keep it defined to the lower left corner of the ls area.
 #lowerLeft = arcpy.Point(values["left"],values["bottom"])
