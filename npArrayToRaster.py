@@ -53,14 +53,14 @@ extension type
 '''
 
 #import refernce landsat raster
-pathToRast = r"C:\Users\nrel\Downloads\LC08_L1TP_028027_20150812_20170226_01_T1_B3.TIF"
+pathToRast = r"D:\BigBison\Spatial_Data\Sentinel\EarthExplorerSentinel\mosacsentTiff.tif"
 raster = arcpy.Raster(pathToRast)
 
 
 #set environmental varables based on raster
 arcpy.env.overwriteOutput = True
 arcpy.env.outputCoordinateSystem = raster
-#if this coordinate system does not work we will need to reproject in the input raster 
+#if this coordinate system does not work we will need to reproject in the input raster
 #arcpy.SpatialReference("WGS 1984")
 arcpy.env.cellSize = raster
 arcpy.env.snapRaster = raster
@@ -71,29 +71,29 @@ values = rastDesc(raster)
 #call the left and bottom values to define the lower left point
 # this is in meters due to landsats projection. You can find your point in arcmap and enter it
 # manually
-lowerLeftAproximate = [347722, 5195823]
+lowerLeftAproximate = [352674, 3990249]
 
-#set the lowerleft so it aligns with a cell of a the raster
+#set the lowerleft so it aligns with a cell of the raster
 adjustLeft = lowerLeftAproximate[0] - ((values['left'] - lowerLeftAproximate[0]) % values['xSize'])
 adjustBottom =  lowerLeftAproximate[1] - ((values["bottom"] - lowerLeftAproximate[1])% values['ySize'])
 
 lowerLeft = arcpy.Point(adjustLeft, adjustBottom)
 
 ##uncommit this code if you want to keep it defined to the lower left corner of the ls area.
-#lowerLeft = arcpy.Point(values["left"],values["bottom"])
+lowerLeft = arcpy.Point(values["left"],values["bottom"])
 
 
 #calculate the totalCells
 # We had to cut this in half due to a memory error. I'm going to test it but for now it an
-# appropraite area
+# appropriate area
 
 if values["numCols"] % 2 == 0:
     numCols = values["numCols"]+ 1
 else:
-    numCols = values["numCols"] 
+    numCols = values["numCols"]
 
 
-totalCells = (values["numRows"]/2) * (numCols/2)
+totalCells = (values["numRows"]) * (numCols)
 
 # this was just hack from stackexchange, I always get a little confused with
 # numpy indexing, but it should do the trick for us
@@ -104,7 +104,7 @@ a[1::2] = 1
 print(a[0:15])
 
 #reshape the array to match the dimensions of the landsat scene
-lsShape = a.reshape((values["numRows"]/2),(numCols/2))
+lsShape = a.reshape((values["numRows"]),(numCols))
 
 
 print (lsShape.shape)
@@ -112,7 +112,7 @@ print (lsShape.shape)
 # Convert the array to raster and save it
 myRaster = arcpy.NumPyArrayToRaster(lsShape, lowerLeft ,values["xSize"],values["ySize"])
 print('the array has been made into a raster.' )
-myRaster.save(r"C:\Users\nrel\Downloads\grid30m_LS28_27a.tif")
+myRaster.save(r"D:\BigBison\Spatial_Data\Sentinel\Shoelaces.TIF")
 
 '''
 to load onto Earth engine
